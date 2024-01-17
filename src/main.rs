@@ -342,6 +342,18 @@ fn compute_mosaic(args: Options) {
     target.lock().unwrap().save(args.output).unwrap();
 }
 
+#[allow(dead_code)]
+fn generate_green_image(width: u32, height: u32) -> RgbImage {
+    use image::Rgb;
+    let mut img = RgbImage::new(width, height);
+
+    for (_, _, pixel) in img.enumerate_pixels_mut() {
+        *pixel = Rgb([0, 255, 0]); // Fully green pixel
+    }
+
+    img
+}
+
 fn main() {
     let args = Options::parse();
     compute_mosaic(args);
@@ -351,21 +363,99 @@ fn main() {
 mod tests {
     #[test]
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    fn unit_test_x86() {
-        // TODO
-        assert!(false);
-    }
+    fn test_l1_x86_sse2() {  
+        use super::*;
+        let width = 100;
+    	let height = 100;
+    	let green_image1 = generate_green_image(width, height);
+    	let green_image2 = generate_green_image(width, height);
+
+    	// Call the function you want to test
+    	unsafe {
+    		let result = l1_x86_sse2(&green_image1, &green_image2);
+    		assert_eq!(result, 0);
+		}
+	}
 
     #[test]
     #[cfg(target_arch = "aarch64")]
-    fn unit_test_aarch64() {
-        // TODO
-        assert!(false);
-    }
+    fn test_l1_neon() {
+        use super::*;
+    	let width = 100;
+    	let height = 100;
+    	let green_image1 = generate_green_image(width, height);
+    	let green_image2 = generate_green_image(width, height);
+    	
+    	let result = l1_neon(&green_image1, &green_image2);
+    	assert_eq!(result, 0);
+    	}
 
     #[test]
-    fn unit_test_generic() {
-        // TODO
-        assert!(false);
-    }
+    fn test_l1_generic() {
+	use super::*;
+    	let width = 100;
+    	let height = 100;
+    	let green_image1 = generate_green_image(width, height);
+    	let green_image2 = generate_green_image(width, height);
+    	
+    	let result = l1_generic(&green_image1, &green_image2);
+    	assert_eq!(result, 0);
+    	}
+    	
+    #[test]
+    fn test_prepare_target() {
+    	use super::*;
+	let size_test = Size {
+		width : 5,
+		height : 5,
+		};
+	
+    	let result = prepare_target("assets/target-small.png", 2,  &size_test); // We open target-small, of size 10x10, we multiply its size by 2
+    	let rgb_image_test = result.unwrap(); // We get the rgb image returned by prepare_target
+    	let width = rgb_image_test.width(); // We get its width & height
+    	let height = rgb_image_test.height();
+    	
+    	assert_eq!(width, 20); // We check if we get a 20x20 image as a result
+    	assert_eq!(height, 20);
+    	}
+    	
+    fn test_prepare_tiles() {
+    	use super::*;
+    	
+    	let size_test = Size {
+		width : 5,
+		height : 5,
+		};
+	
+	let result = prepare_tiles("assets/tiles-small/", &size_test, true);
+	let vec = result.unwrap();
+	
+	
+    	assert_eq!(height, 20);
+    	
+    	prepare_tiles(images_folder: &str, tile_size: &Size, verbose: bool) -> Result<Vec<RgbImage>, Box<dyn Error>> {
+    	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
