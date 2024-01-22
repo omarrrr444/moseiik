@@ -386,8 +386,10 @@ mod tests {
     	let green_image1 = generate_green_image(width, height);
     	let green_image2 = generate_green_image(width, height);
     	
-    	let result = l1_neon(&green_image1, &green_image2);
-    	assert_eq!(result, 0);
+    	unsafe {
+    		let result = l1_neon(&green_image1, &green_image2);
+    		assert_eq!(result, 0);
+    		}
     	}
 
     #[test]

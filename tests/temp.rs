@@ -157,7 +157,7 @@ mod tests {
 
         let args = Options {
         	image: "./assets/kit.jpeg".to_string(),
-        	output: "./assets/out.png".to_string(),
+        	output: "./assets/out-simd.png".to_string(),
         	tiles: "./assets/images/".to_string(),
         	scaling: 1,
         	tile_size: 25,
