@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-      	#for both architecture
+        #for both architecture
         architecture: [x86_64, arm64]
 
     steps:
