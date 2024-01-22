@@ -22,41 +22,41 @@ struct Size {
 
 #[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
-struct Options {
+pub struct Options {
     /// Location of the target image
     #[arg(short, long)]
-    image: String,
+    pub image: String,
 
     /// Saved result location
     #[arg(short, long, default_value_t=String::from("out.png"))]
-    output: String,
+    pub output: String,
 
     /// Location of the tiles
     #[arg(short, long)]
-    tiles: String,
+    pub tiles: String,
 
     /// Scaling factor of the image
     #[arg(long, default_value_t = 1)]
-    scaling: u32,
+    pub scaling: u32,
 
     /// Size of the tiles
     #[arg(long, default_value_t = 5)]
-    tile_size: u32,
+    pub tile_size: u32,
 
     /// Remove used tile
     #[arg(short, long)]
-    remove_used: bool,
+    pub remove_used: bool,
 
     #[arg(short, long)]
-    verbose: bool,
+    pub verbose: bool,
 
     /// Use SIMD when available
     #[arg(short, long)]
-    simd: bool,
+    pub simd: bool,
 
     /// Specify number of threads to use, leave blank for default
     #[arg(short, long, default_value_t = 1)]
-    num_thread: usize,
+    pub num_thread: usize,
 }
 
 fn count_available_tiles(images_folder: &str) -> i32 {
@@ -275,7 +275,7 @@ fn find_best_tile(target: &RgbImage, tiles: &Vec<RgbImage>, simd: bool, verbose:
     return index_best_tile;
 }
 
-fn compute_mosaic(args: Options) {
+pub fn compute_mosaic(args: Options) {
     let tile_size = Size {
         width: args.tile_size,
         height: args.tile_size,
@@ -410,31 +410,38 @@ mod tests {
 		height : 5,
 		};
 	
-    	let result = prepare_target("assets/target-small.png", 2,  &size_test); // We open target-small, of size 10x10, we multiply its size by 2
-    	let rgb_image_test = result.unwrap(); // We get the rgb image returned by prepare_target
-    	let width = rgb_image_test.width(); // We get its width & height
-    	let height = rgb_image_test.height();
+    	match prepare_target("assets/target-small.png", 2,  &size_test) { // We open target-small, of size 10x10, we multiply its size by 2
+    		Ok(vec) => {
+    			assert_eq!(vec.width(), 20); // We check if we get a 20x20 image as a result
+    			assert_eq!(vec.height(), 20);
+    		}
+    		Err(e) => {
+    			assert!(false)
+    		}
+    	} 
+    }
     	
-    	assert_eq!(width, 20); // We check if we get a 20x20 image as a result
-    	assert_eq!(height, 20);
-    	}
-    	
+    #[test]
     fn test_prepare_tiles() {
     	use super::*;
     	
     	let size_test = Size {
-		width : 5,
-		height : 5,
+		width : 25,
+		height : 25,
 		};
 	
-	let result = prepare_tiles("assets/tiles-small/", &size_test, true);
-	let vec = result.unwrap();
-	
-	
-    	assert_eq!(height, 20);
-    	
-    	prepare_tiles(images_folder: &str, tile_size: &Size, verbose: bool) -> Result<Vec<RgbImage>, Box<dyn Error>> {
+	match prepare_tiles("assets/tiles-small/", &size_test, true) {
+		Ok(vec) => {
+			for img in vec {
+				assert_eq!(img.width(), 25); // We check if we get a 25x25 image as a result
+    				assert_eq!(img.height(), 25);
+    			}
+    		}
+    		Err(e) => {
+    			assert!(false);
+    		}
     	}
+    }
 }
 
 
