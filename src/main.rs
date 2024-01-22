@@ -367,12 +367,12 @@ mod tests {
         use super::*;
         let width = 100;
     	let height = 100;
-    	let green_image1 = generate_green_image(width, height);
+    	let green_image1 = generate_green_image(width, height); //We generate 2 fully green images in order to compare them to each other
     	let green_image2 = generate_green_image(width, height);
 
     	// Call the function you want to test
-    	unsafe {
-    		let result = l1_x86_sse2(&green_image1, &green_image2);
+    	unsafe { // As l1_x86_sse2 is an unsafe function, we have to run it inside an unsafe block, we know that it is safe in this case
+    		let result = l1_x86_sse2(&green_image1, &green_image2); // We generate the result with our l1 function and check that we effectively get 0 as a result.
     		assert_eq!(result, 0);
 		}
 	}
@@ -383,11 +383,11 @@ mod tests {
         use super::*;
     	let width = 100;
     	let height = 100;
-    	let green_image1 = generate_green_image(width, height);
+    	let green_image1 = generate_green_image(width, height); //We generate 2 fully green images in order to compare them to each other
     	let green_image2 = generate_green_image(width, height);
     	
-    	unsafe {
-    		let result = l1_neon(&green_image1, &green_image2);
+    	unsafe { // As l1_neon is an unsafe function, we have to run it inside an unsafe block, we know that it is safe in this case
+    		let result = l1_neon(&green_image1, &green_image2); // We generate the result with our l1 function and check that we effectively get 0 as a result.
     		assert_eq!(result, 0);
     		}
     	}
@@ -397,24 +397,25 @@ mod tests {
 	use super::*;
     	let width = 100;
     	let height = 100;
-    	let green_image1 = generate_green_image(width, height);
+    	let green_image1 = generate_green_image(width, height); //We generate 2 fully green images in order to compare them to each other
     	let green_image2 = generate_green_image(width, height);
     	
-    	let result = l1_generic(&green_image1, &green_image2);
+    	let result = l1_generic(&green_image1, &green_image2); // We generate the result with our l1 function and check that we effectively get 0 as a result.
     	assert_eq!(result, 0);
     	}
     	
     #[test]
     fn test_prepare_target() {
     	use super::*;
+	// Instanciate a Size struct
 	let size_test = Size {
 		width : 5,
 		height : 5,
 		};
-	
+	// Check prepare_target result using the provided image
     	match prepare_target("assets/target-small.png", 2,  &size_test) { // We open target-small, of size 10x10, we multiply its size by 2
     		Ok(vec) => {
-    			assert_eq!(vec.width(), 20); // We check if we get a 20x20 image as a result
+    			assert_eq!(vec.width(), 20); // If everything goes well We check if we get a 20x20 image as a result
     			assert_eq!(vec.height(), 20);
     		}
     		Err(e) => {
@@ -426,19 +427,20 @@ mod tests {
     #[test]
     fn test_prepare_tiles() {
     	use super::*;
-    	
+
+	// Instanciate a Size struct with the size we want to get when running the code
     	let size_test = Size {
 		width : 25,
 		height : 25,
 		};
-	
+	// Check prepare_tiles result using the provided tiles
 	match prepare_tiles("assets/tiles-small/", &size_test, true) {
-		Ok(vec) => {
+		Ok(vec) => { //If everything goes well when running prepare_tiles : we verify that the shape we get is the one expected
 			for img in vec {
 				assert_eq!(img.width(), 25); // We check if we get a 25x25 image as a result
     				assert_eq!(img.height(), 25);
     			}
-    		}
+    		} // Else the test is a fail
     		Err(e) => {
     			assert!(false);
     		}
